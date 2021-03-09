@@ -1,0 +1,57 @@
+# depslib dependency file v1.0
+1615195431 source:f:\go pro\daihoc\lap trinh nang cao\project\minesweeper\button.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"button.h"
+
+1615189940 f:\go pro\daihoc\lap trinh nang cao\project\minesweeper\button.h
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"initialize.h"
+
+1615189834 f:\go pro\daihoc\lap trinh nang cao\project\minesweeper\initialize.h
+	<bits/stdc++.h>
+	<SDL.h>
+
+1615281119 source:f:\go pro\daihoc\lap trinh nang cao\project\minesweeper\game.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"initialize.h"
+	"game.h"
+	"button.h"
+	"texture.h"
+
+1615190782 f:\go pro\daihoc\lap trinh nang cao\project\minesweeper\game.h
+	<SDL.h>
+	<SDL_image.h>
+
+1615189892 f:\go pro\daihoc\lap trinh nang cao\project\minesweeper\texture.h
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"initialize.h"
+
+1615191262 source:f:\go pro\daihoc\lap trinh nang cao\project\minesweeper\initialize.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"initialize.h"
+
+1615220311 source:f:\go pro\daihoc\lap trinh nang cao\project\minesweeper\main.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"initialize.h"
+	"texture.h"
+	"button.h"
+	"game.h"
+
+1615189880 source:f:\go pro\daihoc\lap trinh nang cao\project\minesweeper\texture.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"texture.h"
+
