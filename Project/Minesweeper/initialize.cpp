@@ -7,6 +7,7 @@ using namespace std;
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
+TTF_Font* fontText = NULL;
 
 void logSDLError(const string &msg, bool fatal)
 {
@@ -37,5 +38,6 @@ void quitSDL(SDL_Window* window, SDL_Renderer* renderer)
     SDL_DestroyWindow(window);
     IMG_Quit();
     SDL_Quit();
+    exit(0);
 }
 

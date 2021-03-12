@@ -55,3 +55,73 @@
 	<SDL_image.h>
 	"texture.h"
 
+1615520742 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\button.cpp
+
+1615520465 f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\button.h
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"initialize.h"
+
+1615520760 f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\initialize.h
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_ttf.h>
+
+1615540087 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\game.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	"initialize.h"
+	"texture.h"
+	"menu.h"
+	"game.h"
+
+1615520179 f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\game.h
+	<bits/stdc++.h>
+
+1615521236 f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\texture.h
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+
+1615476398 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\initialize.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"initialize.h"
+
+1615521236 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\main.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	"initialize.h"
+	"texture.h"
+	"game.h"
+	"menu.h"
+
+1615521293 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\texture.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"initialize.h"
+	"texture.h"
+
+1615516867 f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\menu.h
+	<bits/stdc++.h>
+
+1615533677 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\menu.cpp
+	<bits/stdc++.h>
+	<SDL.h>
+	<SDL_image.h>
+	"initialize.h"
+	"texture.h"
+	"menu.h"
+	"game.h"
+
+1615479112 f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\setup.h
+
+1615479112 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\setup.cpp
+
