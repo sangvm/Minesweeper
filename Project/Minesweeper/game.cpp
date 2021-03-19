@@ -16,7 +16,7 @@ const int MAX_TABLE_ROW = 20, MAX_TABLE_COLUMN = 20;
 const int TILE_SIZE = 30;
 
 //color variables
-SDL_Color textColor = {140, 140, 140};
+SDL_Color gTextColor = {140, 140, 140};
 
 //game button variables
 Button gImageTile[12]; // 9: mine, 10: not opened, 11: flag
@@ -27,6 +27,7 @@ Button gTableTile[MAX_TABLE_ROW][MAX_TABLE_COLUMN];
 
 Text gYOUWIN, gYOULOSE, gPLAYAGAIN;
 
+//game variables
 int difficulty, MINE_NUM; // 0 : easy, 1: normal, 2: hard, 3: custom
 int TABLE_ROW, TABLE_COLUMN;
 int gEndGame = 0; // = -1: lose, = -1: win
@@ -44,7 +45,8 @@ int dY[8] = {0, 1, 1, 1, 0, -1, -1, -1};
     6   2
     5 4 3
 */
-
+//score variable
+int mWinScore[4];
 // setup game play
 string convertNum(int curNum)
 {
@@ -58,7 +60,7 @@ string convertNum(int curNum)
     return tmp;
 }
 
-void setupButtonAndText()
+void setupButtonAndTextGame()
 {
     for(int i = 0; i < MAX_TABLE_ROW; i++)
     {
@@ -78,34 +80,42 @@ void setupButtonAndText()
         gImageTile[i].loadImage(path);
     }
     //initial clock and time
+    gTheme.loadImage("../Image/background.png");
     for(int i = 0; i < 1000; i++)
     {
-        gClock[i].loadText("Time:" + convertNum(i), textColor);
+        gClock[i].loadText("Time:" + convertNum(i), gTextColor);
     }
     for(int i = 0; i <= 400; i++)
     {
-        gMine[i].loadText("Mine:" + convertNum(i),  textColor);
+        gMine[i].loadText("Mine:" + convertNum(i),  gTextColor);
     }
-    gTheme.loadImage("../Image/background.png");
     //initial replay and home
     gReplayGame.loadImage("../Image/Menu/replayButton.png");
     gBackHome.loadImage("../Image/Menu/home.png");
-
-    //endgame
-    gYOUWIN.loadText("YOU WIN", textColor);
-    gYOULOSE.loadText("YOU LOSE", textColor);
-    gPLAYAGAIN.loadText("Press 'SPACE' to play again", textColor);
-}
-
-void setupReplayAndHome()
-{
     //size 50x50
     gReplayGame.setSize(50, 50);
     gBackHome.setSize(50, 50);
-
+    //position
     gReplayGame.setPosition(850, 25);
     gBackHome.setPosition(910, 25);
+    //initial win score
+    for(int i = 0; i < 4; i++)
+    {
+        mWinScore[i] = 1000;
+    }
+    //endgame
+    gYOUWIN.loadText("YOU WIN", gTextColor);
+    gYOULOSE.loadText("YOU LOSE", gTextColor);
+    gPLAYAGAIN.loadText("Press 'SPACE' to play again", gTextColor);
 
+    gYOUWIN.setPosition(400, 50);
+    gYOULOSE.setPosition(400, 50);
+    gPLAYAGAIN.setPosition(250, 700);
+
+    gYOUWIN.mTEXT_WIDTH = gYOULOSE.mTEXT_WIDTH = 200;
+    gYOUWIN.mTEXT_HEIGHT = gYOULOSE.mTEXT_HEIGHT = 50;
+    gPLAYAGAIN.mTEXT_WIDTH = 500;
+    gPLAYAGAIN.mTEXT_HEIGHT = 50;
 }
 
 void getDifficulty(int index)
@@ -139,13 +149,13 @@ void getDifficulty(int index)
             int inRow, inColumn, inMine;
             while(true)
             {
-                cout << "ROW(MAXIMUM 20)" << endl;
+                cout << "ROW(MINIMUM 1 - MAXIMUM 20)" << endl;
                 cin >> inRow;
-                cout << "COLUMN(MAXIMUM 20)" << endl;
+                cout << "COLUMN(MINIMUM 1 - MAXIMUM 20)" << endl;
                 cin >> inColumn;
                 cout << "MINE(LESS THAN THE NUMBER OF TILES)" << endl;
                 cin >> inMine;
-                if(inMine > inRow * inColumn || inRow > 20 || inColumn > 20)
+                if(inMine >= inRow * inColumn || inRow < 1 || inRow > 20 || inColumn < 1 || inColumn > 20)
                 {
                     cout << "WRONG INPUT, TRY AGAIN" << endl;
                     cout << endl;
@@ -174,7 +184,6 @@ void resetMineTable()
 void randomMine()
 {
     srand(time(NULL));
-
     //initialize table
     int randSize = TABLE_ROW * TABLE_COLUMN;
     set<int>randTable;
@@ -335,6 +344,30 @@ void uploadMineLeft(int curMine)
     SDL_RenderPresent(renderer);
 }
 
+bool clickReplay(SDL_Event gEvent)
+{
+    if(gReplayGame.checkIfMouseIsInButton(&gEvent))
+    {
+        if(leftClicked(gEvent))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool clickBackHome(SDL_Event gEvent)
+{
+    if(gBackHome.checkIfMouseIsInButton(&gEvent))
+    {
+        if(leftClicked(gEvent))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void playingGame()
 {
 
@@ -359,7 +392,7 @@ void playingGame()
     gBackHome.getImage(getRect(gBackHome.mPosition.x, gBackHome.mPosition.y,
         gBackHome.mBUTTON_WIDTH, gBackHome.mBUTTON_HEIGHT));
     //main loop flag
-    bool quitGame = false;
+    int quitGame = 0; //1:endgame, 2: replay, 3: back home
     bool quitWindow = false;
     //why the application is running
     SDL_Event gEvent;
@@ -382,24 +415,24 @@ void playingGame()
             if(gEvent.type == SDL_QUIT)
             {
                 quitWindow = true;
-                quitGame = true;
+                quitGame = 1;
                 break;
             }
             if(gEndGame != 0)
             {
-                quitGame = true;
+                quitGame = 1;
                 break;
             }
             //if replay or back home
-            if(gReplayGame.checkIfMouseIsInButton(&gEvent))
+            if(clickReplay(gEvent))
             {
-                if(gEvent.type == SDL_MOUSEBUTTONDOWN && gEvent.button.button == SDL_BUTTON_LEFT)
-                    loopGame();
+                quitGame = 2;
+                break;
             }
-            if(gBackHome.checkIfMouseIsInButton(&gEvent))
+            if(clickBackHome(gEvent))
             {
-                if(gEvent.type == SDL_MOUSEBUTTONDOWN && gEvent.button.button == SDL_BUTTON_LEFT)
-                    createMenu();
+                quitGame = 3;
+                break;
             }
             // handle menu events
             for(int i = 0; i < TABLE_ROW; i++)
@@ -452,19 +485,44 @@ void playingGame()
     {
         quitSDL(window, renderer);
     }
-    if(gEndGame == 1)
+    switch(quitGame)
     {
-        gYOUWIN.getText(getRect(400, 50, 200, 50));
+    case 2:
+        {
+            loopGame();
+            break;
+        }
+    case 3:
+        {
+            createMenu();
+            break;
+        }
+    default:
+        {
+            if(gEndGame == 1)
+            {
+                //get new score
+                mWinScore[difficulty] = min(mWinScore[difficulty], prevTime);
+                gYOUWIN.getText(getRect(gYOUWIN.mPosition.x, gYOUWIN.mPosition.y,
+                    gYOUWIN.mTEXT_WIDTH, gYOUWIN.mTEXT_HEIGHT));
+            }
+            else
+            {
+                gYOULOSE.getText(getRect(gYOULOSE.mPosition.x, gYOULOSE.mPosition.y,
+                    gYOULOSE.mTEXT_WIDTH, gYOULOSE.mTEXT_HEIGHT));
+            }
+            gPLAYAGAIN.getText(getRect(gPLAYAGAIN.mPosition.x, gPLAYAGAIN.mPosition.y,
+                    gPLAYAGAIN.mTEXT_WIDTH, gPLAYAGAIN.mTEXT_HEIGHT));
+            SDL_RenderPresent(renderer);
+            break;
+        }
     }
-    else
-    {
-        gYOULOSE.getText(getRect(400, 50, 200, 50));
-    }
-    gPLAYAGAIN.getText(getRect(250, 700, 500, 50));
-    SDL_RenderPresent(renderer);
 }
 
-
+int getWinScore(int index)
+{
+    return mWinScore[index];
+}
 void playOneGame()
 {
     resetMineTable();

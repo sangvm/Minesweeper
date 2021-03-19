@@ -2,11 +2,11 @@
 #define _game_h
 
 #include <bits/stdc++.h>
+#include <SDL.h>
 
 using namespace std;
 
-void setupButtonAndText();
-void setupReplayAndHome();
+void setupButtonAndTextGame();
 //clock and mine count
 string convertNum(int curNum);
 void uploadTime(int curTime);
@@ -20,6 +20,9 @@ void initializeMineTable();
 //game play
 void openTile(int i, int j);
 void bfs(int i, int j);
+bool clickReplay(SDL_Event gEvent);
+bool clickBackHome(SDL_Event gEvent);
+int getWinScore(int index);
 
 void playingGame();
 

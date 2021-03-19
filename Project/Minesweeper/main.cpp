@@ -15,8 +15,7 @@ void setupGame()
 	fontText = TTF_OpenFont("DTM-Mono.ttf", 40);
     SDL_Color textColor = {140, 140, 140};
     setupMenuButton();
-    setupButtonAndText();
-    setupReplayAndHome();
+    setupButtonAndTextGame();
 }
 
 int main(int argc, char* argv[])

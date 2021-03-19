@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include "initialize.h"
+#include "menu.h"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ void initSDL(SDL_Window* &window, SDL_Renderer* &renderer)
 
 void quitSDL(SDL_Window* window, SDL_Renderer* renderer)
 {
+    addHighScore();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();

@@ -25,14 +25,18 @@ public:
 private:
     SDL_Texture* loadedTexture;
 };
-
+bool leftClicked(SDL_Event e);
 //initialize text
 class Text
 {
 public:
+    void setPosition(int x, int y);
     void loadText(string path, SDL_Color textColor);
     void getText(SDL_Rect dstrect);
-
+    int textSize;
+    SDL_Point mPosition;
+    int mTEXT_WIDTH;
+    int mTEXT_HEIGHT;
 private:
     SDL_Texture* loadedText;
 };

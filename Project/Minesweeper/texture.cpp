@@ -61,6 +61,21 @@ void Button::getImage(SDL_Rect dstrect)
     SDL_RenderCopy(renderer, loadedTexture, NULL, &dstrect);
 }
 
+bool leftClicked(SDL_Event e)
+{
+    if(e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+    {
+        return true;
+    }
+    return false;
+}
+
+void Text::setPosition(int x, int y)
+{
+    mPosition.x = x;
+    mPosition.y = y;
+}
+
 void Text::loadText(string path, SDL_Color textColor)
 {
     SDL_Surface* textSurface = TTF_RenderText_Solid(fontText, path.c_str(), textColor);

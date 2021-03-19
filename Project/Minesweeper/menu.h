@@ -10,6 +10,7 @@ void setupMenuButton();
 void createMenu();
 void chooseDifficulty();
 void showHighScore();
+void addHighScore();
 
 bool playAgain();
 void loopGame();
