@@ -31,6 +31,7 @@ class Text
 {
 public:
     void setPosition(int x, int y);
+    void setSize(int x, int y);
     void loadText(string path, SDL_Color textColor);
     void getText(SDL_Rect dstrect);
     int textSize;

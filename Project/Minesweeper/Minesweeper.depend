@@ -68,7 +68,7 @@
 	<SDL.h>
 	<SDL_ttf.h>
 
-1616082647 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\game.cpp
+1616323758 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\game.cpp
 	<bits/stdc++.h>
 	<SDL.h>
 	<SDL_image.h>
@@ -82,7 +82,7 @@
 	<bits/stdc++.h>
 	<SDL.h>
 
-1616082532 f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\texture.h
+1616161668 f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\texture.h
 	<bits/stdc++.h>
 	<SDL.h>
 	<SDL_image.h>
@@ -104,7 +104,7 @@
 	"game.h"
 	"menu.h"
 
-1616082532 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\texture.cpp
+1616226532 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\texture.cpp
 	<bits/stdc++.h>
 	<SDL.h>
 	<SDL_image.h>
@@ -114,7 +114,7 @@
 1615647849 f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\menu.h
 	<bits/stdc++.h>
 
-1616081582 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\menu.cpp
+1616321333 source:f:\go pro\daihoc\lap trinh nang cao\github\project\minesweeper\menu.cpp
 	<bits/stdc++.h>
 	<SDL.h>
 	<SDL_image.h>

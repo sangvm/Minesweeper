@@ -26,21 +26,21 @@ int mHighscore[4], mCharWidth[4];
 void setupMenuButton()
 {
     mBackGround.loadImage("../Image/background.png");
-    //menu button size: 200x75, back button: 50 x 50
-    mPlayButton.setSize(200, 75);
-    mHighScoreButton.setSize(200, 75);
-    mBackButton.setSize(50, 50);
 
-    int idX, idY;
-    // idX and idY in menu
-    idX = 400; idY = 300;
-    mPlayButton.setPosition(idX, idY);
-    mHighScoreButton.setPosition(idX, idY + 100);
-    mBackButton.setPosition(50, 50);
     //load menu button
+    int idX, idY;
+    idX = 400; idY = 300;
     mPlayButton.loadImage("../Image/Menu/playButton.png");
+    mPlayButton.setSize(200, 75);
+    mPlayButton.setPosition(idX, idY);
+
     mHighScoreButton.loadImage("../Image/Menu/highscoreButton.png");
+    mHighScoreButton.setSize(200, 75);
+    mHighScoreButton.setPosition(idX, idY + 100);
+
     mBackButton.loadImage("../Image/Menu/replayButton.png");
+    mBackButton.setSize(50, 50);
+    mBackButton.setPosition(50, 50);
 
     idX = 400; idY = 200;
     //difficulty button 200x75

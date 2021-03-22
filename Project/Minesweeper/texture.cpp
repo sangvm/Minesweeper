@@ -76,6 +76,12 @@ void Text::setPosition(int x, int y)
     mPosition.y = y;
 }
 
+void Text::setSize(int x, int y)
+{
+    mTEXT_WIDTH = x;
+    mTEXT_HEIGHT = y;
+}
+
 void Text::loadText(string path, SDL_Color textColor)
 {
     SDL_Surface* textSurface = TTF_RenderText_Solid(fontText, path.c_str(), textColor);

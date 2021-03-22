@@ -25,6 +25,15 @@ Text gClock[1000], gMine[405];
 
 Button gTableTile[MAX_TABLE_ROW][MAX_TABLE_COLUMN];
 
+//custom variables
+Text gCustom[3], gNum[10];
+Text gWrongInput;
+Button gInputButton[3];
+Button gPlayButton, gBackButton;
+
+const int maxNumber[3] = {20, 20, 400};
+int inputNum[3] = {0, 0, 1};
+
 Text gYOUWIN, gYOULOSE, gPLAYAGAIN;
 
 //game variables
@@ -79,6 +88,36 @@ void setupButtonAndTextGame()
         if(i == 11)path = path + "flagged.png";
         gImageTile[i].loadImage(path);
     }
+    //custom input
+    gPlayButton.loadImage("../Image/Menu/playButton.png");
+    gPlayButton.setPosition(400, 550);
+    gPlayButton.setSize(200, 75);
+    gWrongInput.loadText("WRONG INPUT, TRY AGAIN", gTextColor);
+    gWrongInput.setPosition(300, 650);
+    gWrongInput.setSize(400, 50);
+    gBackButton.loadImage("../Image/Menu/replayButton.png");
+    gBackButton.setSize(50, 50);
+    gBackButton.setPosition(50, 50);
+    for(int i = 0; i < 10; i++)
+    {
+        string path = "";
+        path = path + char(i + '0');
+        gNum[i].loadText(path, gTextColor);
+        gNum[i].setSize(40, 50);
+    }
+    for(int i = 0; i < 3; i ++)
+    {
+        string path;
+        if(i == 0)path = "ROW(MINIMUM 1 - MAXIMUM 20)";
+        if(i == 1)path = "COLUMN(MINIMUM 1 - MAXIMUM 20)";
+        if(i == 2)path = "MINE(LESS THAN THE NUMBER OF TILES)";
+        gCustom[i].setPosition(200, 200 + 100 * i);
+        gCustom[i].setSize((int)path.size() * 20, 25);
+        gCustom[i].loadText(path, gTextColor);
+        gInputButton[i].setPosition(200, 235 + 100 * i);
+        gInputButton[i].setSize(20 * 20, 50);
+        gInputButton[i].loadImage("../Image/Game/input.png");
+    }
     //initial clock and time
     gTheme.loadImage("../Image/background.png");
     for(int i = 0; i < 1000; i++)
@@ -91,12 +130,11 @@ void setupButtonAndTextGame()
     }
     //initial replay and home
     gReplayGame.loadImage("../Image/Menu/replayButton.png");
-    gBackHome.loadImage("../Image/Menu/home.png");
-    //size 50x50
     gReplayGame.setSize(50, 50);
-    gBackHome.setSize(50, 50);
-    //position
     gReplayGame.setPosition(850, 25);
+
+    gBackHome.loadImage("../Image/Menu/home.png");
+    gBackHome.setSize(50, 50);
     gBackHome.setPosition(910, 25);
     //initial win score
     for(int i = 0; i < 4; i++)
@@ -105,72 +143,245 @@ void setupButtonAndTextGame()
     }
     //endgame
     gYOUWIN.loadText("YOU WIN", gTextColor);
-    gYOULOSE.loadText("YOU LOSE", gTextColor);
-    gPLAYAGAIN.loadText("Press 'SPACE' to play again", gTextColor);
-
     gYOUWIN.setPosition(400, 50);
-    gYOULOSE.setPosition(400, 50);
-    gPLAYAGAIN.setPosition(250, 700);
+    gYOUWIN.setSize(200, 50);
 
-    gYOUWIN.mTEXT_WIDTH = gYOULOSE.mTEXT_WIDTH = 200;
-    gYOUWIN.mTEXT_HEIGHT = gYOULOSE.mTEXT_HEIGHT = 50;
-    gPLAYAGAIN.mTEXT_WIDTH = 500;
-    gPLAYAGAIN.mTEXT_HEIGHT = 50;
+    gYOULOSE.loadText("YOU LOSE", gTextColor);
+    gYOULOSE.setPosition(400, 50);
+    gYOULOSE.setSize(200, 50);
+
+    gPLAYAGAIN.loadText("Press 'SPACE' to play again", gTextColor);
+    gPLAYAGAIN.setPosition(250, 700);
+    gPLAYAGAIN.setSize(500, 50);
 }
 
-void getDifficulty(int index)
+bool getNum(int index)
 {
-    switch(index)
+    int i = index, maxNum = maxNumber[i];
+
+    gInputButton[i].getImage(getRect(gInputButton[i].mPosition.x, gInputButton[i].mPosition.y,
+        gInputButton[i].mBUTTON_WIDTH, gInputButton[i].mBUTTON_HEIGHT));
+
+    int curX = gInputButton[i].mPosition.x, curY = gInputButton[i].mPosition.y;
+    int ans = 0;
+
+    int quit = 0;
+    SDL_Event e;
+    while(!quit)
     {
-    case 0:
+        while(SDL_PollEvent(&e))
         {
-            difficulty = 0;
-            TABLE_ROW = 8; TABLE_COLUMN = 8;
-            MINE_NUM = 10;
-            break;
-        }
-    case 1:
-        {
-            difficulty = 1;
-            TABLE_ROW = 14; TABLE_COLUMN = 14;
-            MINE_NUM = 36;
-            break;
-        }
-    case 2:
-        {
-            difficulty = 2;
-            TABLE_ROW = 20; TABLE_COLUMN = 20;
-            MINE_NUM = 80;
-            break;
-        }
-    default:
-        {
-            difficulty = 3;
-            int inRow, inColumn, inMine;
-            while(true)
+            if(e.type == SDL_QUIT)
             {
-                cout << "ROW(MINIMUM 1 - MAXIMUM 20)" << endl;
-                cin >> inRow;
-                cout << "COLUMN(MINIMUM 1 - MAXIMUM 20)" << endl;
-                cin >> inColumn;
-                cout << "MINE(LESS THAN THE NUMBER OF TILES)" << endl;
-                cin >> inMine;
-                if(inMine >= inRow * inColumn || inRow < 1 || inRow > 20 || inColumn < 1 || inColumn > 20)
+                quit = -1;
+                break;
+            }
+            if(gBackButton.checkIfMouseIsInButton(&e) && leftClicked(e))
+            {
+                chooseDifficulty();
+                quit = -1;
+                break;
+            }
+            for(int id = 0; id < 3; id++)
+            {
+                if(gInputButton[id].checkIfMouseIsInButton(&e) && leftClicked(e))
                 {
-                    cout << "WRONG INPUT, TRY AGAIN" << endl;
-                    cout << endl;
-                }
-                else
-                {
-                    TABLE_ROW = inRow;
-                    TABLE_COLUMN = inColumn;
-                    MINE_NUM = inMine;
-                    cout << endl;
+                    //click in custom input
+                    inputNum[i] = ans;
+                    //reset data
+                    i = id;
+                    maxNum = maxNumber[i];
+                    gInputButton[i].getImage(getRect(gInputButton[i].mPosition.x, gInputButton[i].mPosition.y,
+                        gInputButton[i].mBUTTON_WIDTH, gInputButton[i].mBUTTON_HEIGHT));
+                    curX = gInputButton[i].mPosition.x, curY = gInputButton[i].mPosition.y;
+                    ans = 0;
                     break;
                 }
             }
-            break;
+            //start game
+            if(gPlayButton.checkIfMouseIsInButton(&e) && leftClicked(e))
+            {
+                inputNum[i] = ans;
+                if(inputNum[2] >= inputNum[0] * inputNum[1] || inputNum[0] == 0 || inputNum[1] == 0)
+                {
+                    gWrongInput.getText(getRect(gWrongInput.mPosition.x, gWrongInput.mPosition.y,
+                        gWrongInput.mTEXT_WIDTH, gWrongInput.mTEXT_HEIGHT));
+                }
+                else
+                {
+                    TABLE_ROW = inputNum[0];
+                    TABLE_COLUMN = inputNum[1];
+                    MINE_NUM = inputNum[2];
+                    quit = 1;
+                    break;
+                }
+            }
+            if(e.key.keysym.sym == SDLK_0 && e.type == SDL_KEYDOWN && ans > 0)
+            {
+                ans = ans * 10 + 0;
+                gNum[0].getText(getRect(curX, curY, gNum[0].mTEXT_WIDTH, gNum[0].mTEXT_HEIGHT));
+                curX += gNum[0].mTEXT_WIDTH;
+            }
+            if(e.key.keysym.sym == SDLK_1 && e.type == SDL_KEYDOWN)
+            {
+                ans = ans * 10 + 1;
+                gNum[1].getText(getRect(curX, curY, gNum[1].mTEXT_WIDTH, gNum[1].mTEXT_HEIGHT));
+                curX += gNum[1].mTEXT_WIDTH;
+            }
+            if(e.key.keysym.sym == SDLK_2 && e.type == SDL_KEYDOWN)
+            {
+                ans = ans * 10 + 2;
+                gNum[2].getText(getRect(curX, curY, gNum[2].mTEXT_WIDTH, gNum[2].mTEXT_HEIGHT));
+                curX += gNum[2].mTEXT_WIDTH;
+            }
+            if(e.key.keysym.sym == SDLK_3 && e.type == SDL_KEYDOWN)
+            {
+                ans = ans * 10 + 3;
+                gNum[3].getText(getRect(curX, curY, gNum[3].mTEXT_WIDTH, gNum[3].mTEXT_HEIGHT));
+                curX += gNum[3].mTEXT_WIDTH;
+            }
+            if(e.key.keysym.sym == SDLK_4 && e.type == SDL_KEYDOWN)
+            {
+                ans = ans * 10 + 4;
+                gNum[4].getText(getRect(curX, curY, gNum[4].mTEXT_WIDTH, gNum[4].mTEXT_HEIGHT));
+                curX += gNum[4].mTEXT_WIDTH;
+            }
+            if(e.key.keysym.sym == SDLK_5 && e.type == SDL_KEYDOWN)
+            {
+                ans = ans * 10 + 5;
+                gNum[5].getText(getRect(curX, curY, gNum[5].mTEXT_WIDTH, gNum[5].mTEXT_HEIGHT));
+                curX += gNum[5].mTEXT_WIDTH;
+            }
+            if(e.key.keysym.sym == SDLK_6 && e.type == SDL_KEYDOWN)
+            {
+                ans = ans * 10 + 6;
+                gNum[6].getText(getRect(curX, curY, gNum[6].mTEXT_WIDTH, gNum[6].mTEXT_HEIGHT));
+                curX += gNum[6].mTEXT_WIDTH;
+            }
+            if(e.key.keysym.sym == SDLK_7 && e.type == SDL_KEYDOWN)
+            {
+                ans = ans * 10 + 7;
+                gNum[7].getText(getRect(curX, curY, gNum[7].mTEXT_WIDTH, gNum[7].mTEXT_HEIGHT));
+                curX += gNum[7].mTEXT_WIDTH;
+            }
+            if(e.key.keysym.sym == SDLK_8 && e.type == SDL_KEYDOWN)
+            {
+                ans = ans * 10 + 8;
+                gNum[8].getText(getRect(curX, curY, gNum[8].mTEXT_WIDTH, gNum[8].mTEXT_HEIGHT));
+                curX += gNum[8].mTEXT_WIDTH;
+            }
+            if(e.key.keysym.sym == SDLK_9 && e.type == SDL_KEYDOWN)
+            {
+                ans = ans * 10 + 9;
+                gNum[9].getText(getRect(curX, curY, gNum[9].mTEXT_WIDTH, gNum[9].mTEXT_HEIGHT));
+                curX += gNum[9].mTEXT_WIDTH;
+            }
+            //get new maximum for MINE_NUM
+            if(i == 2 && inputNum[0] != 0 && inputNum[1] != 0)maxNum = inputNum[0] * inputNum[1] - 1;
+            if(ans > maxNum)
+            {
+                gInputButton[i].getImage(getRect(gInputButton[i].mPosition.x, gInputButton[i].mPosition.y,
+                    gInputButton[i].mBUTTON_WIDTH, gInputButton[i].mBUTTON_HEIGHT));
+                ans = maxNum;
+                int curNum = maxNum;
+                inputNum[i] = ans;
+                stack<int> numStack;
+                while(curNum > 0)
+                {
+                    numStack.push(curNum % 10);
+                    curNum /= 10;
+                }
+                //reset position
+                curX = gInputButton[i].mPosition.x, curY = gInputButton[i].mPosition.y;
+                while(!numStack.empty())
+                {
+                    int curIndex = numStack.top();
+                    numStack.pop();
+                    gNum[curIndex].getText(getRect(curX, curY,
+                        gNum[curIndex].mTEXT_WIDTH, gNum[curIndex].mTEXT_HEIGHT));
+                    curX += gNum[curIndex].mTEXT_WIDTH;
+                }
+                break;
+            }
         }
+        SDL_RenderPresent(renderer);
+    }
+    if(quit == -1)
+    {
+        quitSDL(window, renderer);
+    }
+}
+void getDifficulty(int index)
+{
+    if(index == 0)
+    {
+        difficulty = 0;
+        TABLE_ROW = 8; TABLE_COLUMN = 8;
+        MINE_NUM = 10;
+    }
+    if(index == 1)
+    {
+        difficulty = 1;
+        TABLE_ROW = 14; TABLE_COLUMN = 14;
+        MINE_NUM = 36;
+    }
+    if(index == 2)
+    {
+        difficulty = 2;
+        TABLE_ROW = 20; TABLE_COLUMN = 20;
+        MINE_NUM = 80;
+    }
+    if(index == 3)
+    {
+        //reset inputNum
+        inputNum[0] = inputNum[1] = 0;
+        inputNum[2] = 1;
+        difficulty = 3;
+        gTheme.getImage(getRect(0, 0, gSCREEN_WIDTH, gSCREEN_HEIGHT));
+        gPlayButton.getImage(getRect(gPlayButton.mPosition.x, gPlayButton.mPosition.y,
+            gPlayButton.mBUTTON_WIDTH, gPlayButton.mBUTTON_HEIGHT));
+        gBackButton.getImage(getRect(gBackButton.mPosition.x, gBackButton.mPosition.y,
+            gBackButton.mBUTTON_WIDTH, gBackButton.mBUTTON_HEIGHT));
+        for(int i = 0; i < 3; i++)
+        {
+            gCustom[i].getText(getRect(gCustom[i].mPosition.x, gCustom[i].mPosition.y,
+                gCustom[i].mTEXT_WIDTH, gCustom[i].mTEXT_HEIGHT));
+            gInputButton[i].getImage(getRect(gInputButton[i].mPosition.x, gInputButton[i].mPosition.y,
+                gInputButton[i].mBUTTON_WIDTH, gInputButton[i].mBUTTON_HEIGHT));
+        }
+        SDL_Event customEvent;
+        int quit = 0;
+        while(!quit)
+        {
+            while(SDL_PollEvent(&customEvent))
+            {
+                if(customEvent.type == SDL_QUIT)
+                {
+                    quit = -1;
+                    break;
+                }
+                if(gBackButton.checkIfMouseIsInButton(&customEvent) && leftClicked(customEvent))
+                {
+                    chooseDifficulty();
+                    quit = -1;
+                    break;
+                }
+                for(int i = 0; i < 3; i ++)
+                {
+                    if(gInputButton[i].checkIfMouseIsInButton(&customEvent))
+                    {
+                        if(leftClicked(customEvent))
+                        {
+                            getNum(i);
+                            quit = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            SDL_RenderPresent(renderer);
+        }
+        if(quit == -1)quitSDL(window, renderer);
     }
 }
 
