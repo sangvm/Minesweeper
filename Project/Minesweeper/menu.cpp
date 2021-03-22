@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include "initialize.h"
 #include "texture.h"
 #include "menu.h"
@@ -12,6 +13,9 @@ const int mSCREEN_WIDTH = 1000;
 const int mSCREEN_HEIGHT = 800;
 int TEXT_SIZE = 35;
 bool mPlayerClickedHome = false;
+
+//mixer variables
+Mix_Music *mMainMenu;
 
 //menu button variables
 Button mBackGround;
@@ -25,8 +29,10 @@ int mHighscore[4], mCharWidth[4];
 //setup menu
 void setupMenuButton()
 {
+    //setup background
     mBackGround.loadImage("../Image/background.png");
-
+    //setup main menu music
+    mMainMenu = Mix_LoadMUS("../Music/mainmenu.mp3");
     //load menu button
     int idX, idY;
     idX = 400; idY = 300;
@@ -132,6 +138,7 @@ void loopGame()
     bool playerPlayAgain = false;
     do
     {
+        Mix_PauseMusic();
         mBackGround.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
         playOneGame();
         playerPlayAgain = playAgain();
@@ -141,6 +148,7 @@ void loopGame()
     if(mPlayerClickedHome)
     {
         mPlayerClickedHome = false;
+        playMainMenuMusic();
         createMenu();
     }
 }
@@ -274,5 +282,14 @@ void createMenu()
         SDL_RenderPresent(renderer);
     }
     quitSDL(window, renderer);
+}
+
+void playMainMenuMusic()
+{
+    if(Mix_PausedMusic() == 0)
+    {
+        Mix_PauseMusic();
+    }
+    Mix_PlayMusic(mMainMenu, -1);
 }
 

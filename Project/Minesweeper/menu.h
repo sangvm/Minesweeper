@@ -5,6 +5,7 @@
 
 using namespace std;
 
+void playMainMenuMusic();
 void setupMenuButton();
 
 void createMenu();

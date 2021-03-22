@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 #include "initialize.h"
 #include "texture.h"
 #include "menu.h"
@@ -15,6 +16,10 @@ const int gSCREEN_HEIGHT = 800;
 const int MAX_TABLE_ROW = 20, MAX_TABLE_COLUMN = 20;
 const int TILE_SIZE = 30;
 
+//mixer variables
+Mix_Music *gGame;
+Mix_Music *gWinGame;
+Mix_Music *gLoseGame;
 //color variables
 SDL_Color gTextColor = {140, 140, 140};
 
@@ -153,6 +158,10 @@ void setupButtonAndTextGame()
     gPLAYAGAIN.loadText("Press 'SPACE' to play again", gTextColor);
     gPLAYAGAIN.setPosition(250, 700);
     gPLAYAGAIN.setSize(500, 50);
+    //setup game music
+    gGame = Mix_LoadMUS("../Music/gameplay.mp3");
+    gWinGame = Mix_LoadMUS("../Music/winner.mp3");
+    gLoseGame = Mix_LoadMUS("../Music/loser.mp3");
 }
 
 bool getNum(int index)
@@ -276,6 +285,13 @@ bool getNum(int index)
                 gNum[9].getText(getRect(curX, curY, gNum[9].mTEXT_WIDTH, gNum[9].mTEXT_HEIGHT));
                 curX += gNum[9].mTEXT_WIDTH;
             }
+//            if(e.key.keysym.sym == SDLK_BACKSPACE && e.type == SDL_KEYDOWN && ans > 0)
+//            {
+//                ans = ans / 10;
+//                curX -= gNum[0].mTEXT_WIDTH;
+//                gInputButton[i].getImage(getRect(gInputButton[i].mPosition.x, gInputButton[i].mPosition.y,
+//                    gInputButton[i].mBUTTON_WIDTH, gInputButton[i].mBUTTON_HEIGHT));
+//            }
             //get new maximum for MINE_NUM
             if(i == 2 && inputNum[0] != 0 && inputNum[1] != 0)maxNum = inputNum[0] * inputNum[1] - 1;
             if(ans > maxNum)
@@ -660,6 +676,8 @@ void playingGame()
                             if(!firstClicked)
                             {
                                 firstClicked = true;
+                                //start music
+                                Mix_PlayMusic(gGame, -1);
                                 startTime = clock();
                             }
                             if(gEvent.button.button == SDL_BUTTON_LEFT)
@@ -700,11 +718,14 @@ void playingGame()
     {
     case 2:
         {
+            //replay
             loopGame();
             break;
         }
     case 3:
         {
+            //back menu
+            playMainMenuMusic();
             createMenu();
             break;
         }
@@ -713,12 +734,16 @@ void playingGame()
             if(gEndGame == 1)
             {
                 //get new score
+                Mix_PauseMusic();
+                Mix_PlayMusic(gWinGame, 0);
                 mWinScore[difficulty] = min(mWinScore[difficulty], prevTime);
                 gYOUWIN.getText(getRect(gYOUWIN.mPosition.x, gYOUWIN.mPosition.y,
                     gYOUWIN.mTEXT_WIDTH, gYOUWIN.mTEXT_HEIGHT));
             }
             else
             {
+                Mix_PauseMusic();
+                Mix_PlayMusic(gLoseGame, 0);
                 gYOULOSE.getText(getRect(gYOULOSE.mPosition.x, gYOULOSE.mPosition.y,
                     gYOULOSE.mTEXT_WIDTH, gYOULOSE.mTEXT_HEIGHT));
             }
