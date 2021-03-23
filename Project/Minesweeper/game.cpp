@@ -45,7 +45,7 @@ Text gYOUWIN, gYOULOSE, gPLAYAGAIN;
 int difficulty, MINE_NUM; // 0 : easy, 1: normal, 2: hard, 3: custom
 int TABLE_ROW, TABLE_COLUMN;
 int gEndGame = 0; // = -1: lose, = -1: win
-int tileLeft;
+int tileLeft, countMine;
 
 int mine[MAX_TABLE_ROW][MAX_TABLE_COLUMN];// 9: mine
 int opened[MAX_TABLE_ROW][MAX_TABLE_COLUMN]; //0: not opened, 1: opened, -1: flagged, 2:is not opened and in queue
@@ -101,8 +101,8 @@ void setupButtonAndTextGame()
     gWrongInput.setPosition(300, 650);
     gWrongInput.setSize(400, 50);
     gBackButton.loadImage("../Image/Menu/replayButton.png");
+    gBackButton.setPosition(100, 200);
     gBackButton.setSize(50, 50);
-    gBackButton.setPosition(50, 50);
     for(int i = 0; i < 10; i++)
     {
         string path = "";
@@ -285,13 +285,6 @@ bool getNum(int index)
                 gNum[9].getText(getRect(curX, curY, gNum[9].mTEXT_WIDTH, gNum[9].mTEXT_HEIGHT));
                 curX += gNum[9].mTEXT_WIDTH;
             }
-//            if(e.key.keysym.sym == SDLK_BACKSPACE && e.type == SDL_KEYDOWN && ans > 0)
-//            {
-//                ans = ans / 10;
-//                curX -= gNum[0].mTEXT_WIDTH;
-//                gInputButton[i].getImage(getRect(gInputButton[i].mPosition.x, gInputButton[i].mPosition.y,
-//                    gInputButton[i].mBUTTON_WIDTH, gInputButton[i].mBUTTON_HEIGHT));
-//            }
             //get new maximum for MINE_NUM
             if(i == 2 && inputNum[0] != 0 && inputNum[1] != 0)maxNum = inputNum[0] * inputNum[1] - 1;
             if(ans > maxNum)
@@ -333,19 +326,19 @@ void getDifficulty(int index)
     {
         difficulty = 0;
         TABLE_ROW = 8; TABLE_COLUMN = 8;
-        MINE_NUM = 10;
+        MINE_NUM = 8;
     }
     if(index == 1)
     {
         difficulty = 1;
         TABLE_ROW = 14; TABLE_COLUMN = 14;
-        MINE_NUM = 36;
+        MINE_NUM = 28;
     }
     if(index == 2)
     {
         difficulty = 2;
         TABLE_ROW = 20; TABLE_COLUMN = 20;
-        MINE_NUM = 80;
+        MINE_NUM = 69;
     }
     if(index == 3)
     {
@@ -403,6 +396,7 @@ void getDifficulty(int index)
 
 void resetMineTable()
 {
+    countMine = MINE_NUM;
     gEndGame = 0;
     memset(mine, 0, sizeof(mine));
     memset(opened, 0, sizeof(opened));
@@ -595,6 +589,50 @@ bool clickBackHome(SDL_Event gEvent)
     return false;
 }
 
+bool addMine()
+{
+    int tableSize = TABLE_ROW * TABLE_COLUMN, randSize = 0;
+    set<int>randTable;
+    for(int i = 0; i < tableSize; i++)
+    {
+        int idX = i / TABLE_COLUMN, idY = i % TABLE_COLUMN;
+        //add 10 and 11 tiles because player can use flag wrong tiles
+        if(mine[idX][idY] == 8 || mine[idX][idY] == 9 || opened[idX][idY] == 1)continue;
+        randTable.insert(i);
+        randSize++;
+    }
+    int cur = rand() % randSize;
+    for(set<int>::iterator it = randTable.begin(); it != randTable.end(); it++)
+    {
+        if(cur == 0)
+        {
+            int id = *it;
+            int i = id / TABLE_COLUMN, j = id % TABLE_COLUMN;
+            mine[i][j] = 9;
+            tileLeft--;
+            countMine++;
+            uploadMineLeft(countMine);
+            if(tileLeft == 0)return true;
+            for(int id = 0; id < 8; id++)
+            {
+                int idX = i + dX[id], idY = j + dY[id];
+                if(idX < 0 || idX >= TABLE_ROW || idY < 0 || idY >= TABLE_COLUMN)continue;
+                //avoid 10 and 11 tiles
+                if(mine[idX][idY] < 8)mine[idX][idY]++;
+                if(opened[idX][idY] == 1)
+                {
+                    tileLeft++;
+                    openTile(idX, idY);
+                }
+            }
+            return false;
+        }
+        else
+        {
+            cur--;
+        }
+    }
+}
 void playingGame()
 {
 
@@ -609,8 +647,6 @@ void playingGame()
     bool firstClicked = false;
     clock_t startTime, endTime;
     int prevTime = 0;
-    //initial count mine
-    int countMine = MINE_NUM;
     uploadTime(0);
     uploadMineLeft(countMine);
     //initial replay and home
@@ -618,8 +654,11 @@ void playingGame()
         gReplayGame.mBUTTON_WIDTH, gReplayGame.mBUTTON_HEIGHT));
     gBackHome.getImage(getRect(gBackHome.mPosition.x, gBackHome.mPosition.y,
         gBackHome.mBUTTON_WIDTH, gBackHome.mBUTTON_HEIGHT));
+    //start music
+    Mix_PlayMusic(gGame, -1);
     //main loop flag
     int quitGame = 0; //1:endgame, 2: replay, 3: back home
+    bool terroristAddMine = false;
     bool quitWindow = false;
     //why the application is running
     SDL_Event gEvent;
@@ -632,8 +671,22 @@ void playingGame()
             int timeUsed = ((double)(endTime - startTime)) / CLOCKS_PER_SEC;
             if(timeUsed != prevTime)
             {
+                if(timeUsed % 10 != 0)
+                {
+                   terroristAddMine = false;
+                }
                 prevTime = timeUsed;
                 uploadTime(timeUsed);
+            }
+            if(timeUsed != 0 && timeUsed % 10 == 0 && !terroristAddMine)
+            {
+                terroristAddMine = true;
+                if(addMine())
+                {
+                    gEndGame = -1;
+                    quitGame = 1;
+                    break;
+                }
             }
         }
         // handle events on queue
@@ -676,8 +729,6 @@ void playingGame()
                             if(!firstClicked)
                             {
                                 firstClicked = true;
-                                //start music
-                                Mix_PlayMusic(gGame, -1);
                                 startTime = clock();
                             }
                             if(gEvent.button.button == SDL_BUTTON_LEFT)

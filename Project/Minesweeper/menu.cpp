@@ -18,6 +18,7 @@ bool mPlayerClickedHome = false;
 Mix_Music *mMainMenu;
 
 //menu button variables
+Button mTheme;
 Button mBackGround;
 Button mPlayButton, mHighScoreButton, mBackButton;
 Button mDifficulty[4]; //0:easy, 1: medium, 2:hard, 3:custom
@@ -30,25 +31,26 @@ int mHighscore[4], mCharWidth[4];
 void setupMenuButton()
 {
     //setup background
+    mTheme.loadImage("../Image/minesweeper.png");
     mBackGround.loadImage("../Image/background.png");
     //setup main menu music
     mMainMenu = Mix_LoadMUS("../Music/mainmenu.mp3");
     //load menu button
     int idX, idY;
-    idX = 400; idY = 300;
+    idX = 400; idY = 325;
     mPlayButton.loadImage("../Image/Menu/playButton.png");
-    mPlayButton.setSize(200, 75);
     mPlayButton.setPosition(idX, idY);
+    mPlayButton.setSize(200, 75);
 
     mHighScoreButton.loadImage("../Image/Menu/highscoreButton.png");
-    mHighScoreButton.setSize(200, 75);
     mHighScoreButton.setPosition(idX, idY + 100);
+    mHighScoreButton.setSize(200, 75);
 
     mBackButton.loadImage("../Image/Menu/replayButton.png");
+    mBackButton.setPosition(100, 200);
     mBackButton.setSize(50, 50);
-    mBackButton.setPosition(50, 50);
 
-    idX = 400; idY = 200;
+    idX = 400; idY = 275;
     //difficulty button 200x75
     for(int i = 0; i < 4; i++)
     {
@@ -155,7 +157,7 @@ void loopGame()
 
 void chooseDifficulty()
 {
-    mBackGround.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
+    mTheme.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
     bool quit = false;
     SDL_Event chooseEvent;
     while(!quit)
@@ -201,7 +203,7 @@ void chooseDifficulty()
 
 void showHighScore()
 {
-    mBackGround.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
+    mTheme.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
     for(int i = 0; i < 4; i++)
     {
         mHighscore[i] = min(mHighscore[i], getWinScore(i));
@@ -244,7 +246,7 @@ void showHighScore()
 
 void createMenu()
 {
-    mBackGround.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
+    mTheme.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
     bool quit = false;
     SDL_Event menuEvent;
     while(!quit)

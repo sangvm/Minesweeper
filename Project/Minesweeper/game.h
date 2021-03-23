@@ -22,6 +22,7 @@ void openTile(int i, int j);
 void bfs(int i, int j);
 bool clickReplay(SDL_Event gEvent);
 bool clickBackHome(SDL_Event gEvent);
+bool addMine();
 int getWinScore(int index);
 
 void playingGame();

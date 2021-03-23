@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include "initialize.h"
 #include "menu.h"
 
@@ -38,6 +39,7 @@ void quitSDL(SDL_Window* window, SDL_Renderer* renderer)
     addHighScore();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    Mix_Quit();
     IMG_Quit();
     SDL_Quit();
     exit(0);
