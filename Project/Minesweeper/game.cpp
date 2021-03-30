@@ -12,6 +12,8 @@ using namespace std;
 
 const int gSCREEN_WIDTH = 1000;
 const int gSCREEN_HEIGHT = 800;
+const int INF = 1e9;
+const int mFrame = 8;
 
 const int MAX_TABLE_ROW = 20, MAX_TABLE_COLUMN = 20;
 const int TILE_SIZE = 30;
@@ -23,13 +25,17 @@ Mix_Music *gLoseGame;
 //color variables
 SDL_Color gTextColor = {140, 140, 140};
 
+//character variables
+Button gCharButton[4];
+Character gCharacter[4], gCurChar;
+Text gChooseCharacter;
+int charUsed;
+
 //game button variables
 Button gImageTile[12]; // 9: mine, 10: not opened, 11: flag
 Button gReplayGame, gBackHome, gTheme;
 Text gClock[1000], gMine[405];
-
 Button gTableTile[MAX_TABLE_ROW][MAX_TABLE_COLUMN];
-
 //custom variables
 Text gCustom[3], gNum[10];
 Text gWrongInput;
@@ -92,6 +98,36 @@ void setupButtonAndTextGame()
         if(i == 10)path = path + "facingDown.png";
         if(i == 11)path = path + "flagged.png";
         gImageTile[i].loadImage(path);
+    }
+    //choose character
+    gChooseCharacter.loadText("CHOOSE CHARACTER", gTextColor);
+    gChooseCharacter.setPosition(300, 100);
+    gChooseCharacter.setSize(400, 75);
+    for(int i = 0; i < 4; i ++)
+    {
+        gCharacter[i].setupChar();
+        if(i == 1)
+        {
+            gCharacter[i].mineTime = 10;
+            gCharacter[i].scoreTime = 60;
+            gCharacter[i].extraSkill = 33;
+        }
+        if(i == 2)
+        {
+            gCharacter[i].mineTime = 11;
+            gCharacter[i].extraSkill = 50;
+        }
+        if(i == 3)
+        {
+            gCharacter[i].mineTime = 8;
+            gCharacter[i].scoreTime = -15;
+            gCharacter[i].extraSkill = 40;
+        }
+        string path = "../Image/Character/character";
+        path = path + char(i + '0') + ".png";
+        gCharButton[i].loadImage(path);
+        gCharButton[i].setPosition(300, 200 + i * 125);
+        gCharButton[i].setSize(400, 100);
     }
     //custom input
     gPlayButton.loadImage("../Image/Menu/playButton.png");
@@ -164,17 +200,14 @@ void setupButtonAndTextGame()
     gLoseGame = Mix_LoadMUS("../Music/loser.mp3");
 }
 
-bool getNum(int index)
+void getNum(int index)
 {
     int i = index, maxNum = maxNumber[i];
-
     gInputButton[i].getImage(getRect(gInputButton[i].mPosition.x, gInputButton[i].mPosition.y,
         gInputButton[i].mBUTTON_WIDTH, gInputButton[i].mBUTTON_HEIGHT));
 
     int curX = gInputButton[i].mPosition.x, curY = gInputButton[i].mPosition.y;
-    int ans = 0;
-
-    int quit = 0;
+    int ans = 0, quit = 0;
     SDL_Event e;
     while(!quit)
     {
@@ -182,12 +215,11 @@ bool getNum(int index)
         {
             if(e.type == SDL_QUIT)
             {
-                quit = -1;
+                quit = INF;
                 break;
             }
             if(gBackButton.checkIfMouseIsInButton(&e) && leftClicked(e))
             {
-                chooseDifficulty();
                 quit = -1;
                 break;
             }
@@ -315,10 +347,8 @@ bool getNum(int index)
         }
         SDL_RenderPresent(renderer);
     }
-    if(quit == -1)
-    {
-        quitSDL(window, renderer);
-    }
+    if(quit == INF)quitSDL(window, renderer);
+    if(quit == -1)chooseDifficulty();
 }
 void getDifficulty(int index)
 {
@@ -327,22 +357,25 @@ void getDifficulty(int index)
         difficulty = 0;
         TABLE_ROW = 8; TABLE_COLUMN = 8;
         MINE_NUM = 8;
+        chooseCharacter();
     }
     if(index == 1)
     {
         difficulty = 1;
         TABLE_ROW = 14; TABLE_COLUMN = 14;
         MINE_NUM = 28;
+        chooseCharacter();
     }
     if(index == 2)
     {
         difficulty = 2;
         TABLE_ROW = 20; TABLE_COLUMN = 20;
         MINE_NUM = 69;
+        chooseCharacter();
     }
     if(index == 3)
     {
-        //reset inputNum
+        //reset input number
         inputNum[0] = inputNum[1] = 0;
         inputNum[2] = 1;
         difficulty = 3;
@@ -366,12 +399,11 @@ void getDifficulty(int index)
             {
                 if(customEvent.type == SDL_QUIT)
                 {
-                    quit = -1;
+                    quit = INF;
                     break;
                 }
                 if(gBackButton.checkIfMouseIsInButton(&customEvent) && leftClicked(customEvent))
                 {
-                    chooseDifficulty();
                     quit = -1;
                     break;
                 }
@@ -390,8 +422,56 @@ void getDifficulty(int index)
             }
             SDL_RenderPresent(renderer);
         }
-        if(quit == -1)quitSDL(window, renderer);
+        if(quit == INF)quitSDL(window, renderer);
+        if(quit == -1)chooseDifficulty();
+        if(quit == 1)chooseCharacter();
     }
+}
+
+void chooseCharacter()
+{
+    gTheme.getImage(getRect(0, 0, gSCREEN_WIDTH, gSCREEN_HEIGHT));
+    gChooseCharacter.getText(getRect(gChooseCharacter.mPosition.x, gChooseCharacter.mPosition.y,
+        gChooseCharacter.mTEXT_WIDTH, gChooseCharacter.mTEXT_HEIGHT));
+    gBackButton.getImage(getRect(gBackButton.mPosition.x, gBackButton.mPosition.y,
+        gBackButton.mBUTTON_WIDTH, gBackButton.mBUTTON_HEIGHT));
+    for(int i = 0; i < 4; i++)
+    {
+        gCharButton[i].getImage(getRect(gCharButton[i].mPosition.x, gCharButton[i].mPosition.y,
+            gCharButton[i].mBUTTON_WIDTH, gCharButton[i].mBUTTON_HEIGHT));
+    }
+    int quit = 0;
+    SDL_Event gChooseChar;
+    while(!quit)
+    {
+        while(SDL_PollEvent(&gChooseChar))
+        {
+            if(gChooseChar.type == SDL_QUIT)
+            {
+                quit = INF;
+                break;
+            }
+            if(gBackButton.checkIfMouseIsInButton(&gChooseChar) && leftClicked(gChooseChar))
+            {
+                quit = -1;
+                break;
+            }
+            for(int i = 0; i < 4; i++)
+            {
+                if(gCharButton[i].checkIfMouseIsInButton(&gChooseChar) && leftClicked(gChooseChar))
+                {
+                    charUsed = i;
+                    gCurChar = gCharacter[i];
+                    quit = 1;
+                    break;
+                }
+            }
+        }
+        SDL_RenderPresent(renderer);
+    }
+    if(quit == INF)quitSDL(window, renderer);
+    if(quit == -1)chooseDifficulty();
+    if(quit == 1)loopGame();
 }
 
 void resetMineTable()
@@ -467,6 +547,22 @@ void initializeMineTable()
     }
 }
 
+bool randomExtraSkill(int index)
+{
+    int cur = rand() % 100;
+    return cur < index;
+}
+
+int randExtraTime(int index)
+{
+    int cur = rand() % 100;
+    if(index > 0)
+    {
+        return cur < index;
+    }
+    if(cur < abs(index))return -1;
+    return 0;
+}
 void openTile(int i, int j)
 {
     // this tile is opened
@@ -474,16 +570,31 @@ void openTile(int i, int j)
     // this tile is mine
     if(mine[i][j] == 9)
     {
-        gEndGame = -1; // player lose
-        //show all mines left
-        for(int idX = 0; idX < TABLE_ROW; idX++)
+        int curLife = 1;
+        //skill char 1
+        if(charUsed == 1 && randomExtraSkill(gCurChar.extraSkill))
         {
-            for(int idY = 0; idY < TABLE_COLUMN; idY++)
+            curLife++;
+            if(gCurChar.extraSkill > 0)gCurChar.extraSkill  -= 11;
+        }
+        if(curLife == 2)
+        {
+            gImageTile[mine[i][j]].getImage(getRect(gTableTile[i][j].mPosition.x,
+                gTableTile[i][j].mPosition.y, TILE_SIZE, TILE_SIZE));
+        }
+        else
+        {
+            gEndGame = -1; // player lose
+            //show all mines left
+            for(int idX = 0; idX < TABLE_ROW; idX++)
             {
-                if(mine[idX][idY] == 9)
+                for(int idY = 0; idY < TABLE_COLUMN; idY++)
                 {
-                    gImageTile[mine[idX][idY]].getImage(getRect(gTableTile[idX][idY].mPosition.x,
-                        gTableTile[idX][idY].mPosition.y, TILE_SIZE, TILE_SIZE));
+                    if(mine[idX][idY] == 9)
+                    {
+                        gImageTile[mine[idX][idY]].getImage(getRect(gTableTile[idX][idY].mPosition.x,
+                            gTableTile[idX][idY].mPosition.y, TILE_SIZE, TILE_SIZE));
+                    }
                 }
             }
         }
@@ -567,25 +678,15 @@ void uploadMineLeft(int curMine)
 
 bool clickReplay(SDL_Event gEvent)
 {
-    if(gReplayGame.checkIfMouseIsInButton(&gEvent))
-    {
-        if(leftClicked(gEvent))
-        {
-            return true;
-        }
-    }
+    if(gReplayGame.checkIfMouseIsInButton(&gEvent) && leftClicked(gEvent))
+        return true;
     return false;
 }
 
 bool clickBackHome(SDL_Event gEvent)
 {
-    if(gBackHome.checkIfMouseIsInButton(&gEvent))
-    {
-        if(leftClicked(gEvent))
-        {
-            return true;
-        }
-    }
+    if(gBackHome.checkIfMouseIsInButton(&gEvent) && leftClicked(gEvent))
+        return true;
     return false;
 }
 
@@ -596,8 +697,8 @@ bool addMine()
     for(int i = 0; i < tableSize; i++)
     {
         int idX = i / TABLE_COLUMN, idY = i % TABLE_COLUMN;
-        //add 10 and 11 tiles because player can use flag wrong tiles
-        if(mine[idX][idY] == 8 || mine[idX][idY] == 9 || opened[idX][idY] == 1)continue;
+        //open[idX][idY] = -1 because player can use flag at wrong tiles
+        if(mine[idX][idY] == 9 || opened[idX][idY] == 1)continue;
         randTable.insert(i);
         randSize++;
     }
@@ -646,7 +747,7 @@ void playingGame()
     //initial clock
     bool firstClicked = false;
     clock_t startTime, endTime;
-    int prevTime = 0;
+    int prevTime = 0, addTime = 0;
     uploadTime(0);
     uploadMineLeft(countMine);
     //initial replay and home
@@ -657,12 +758,11 @@ void playingGame()
     //start music
     Mix_PlayMusic(gGame, -1);
     //main loop flag
-    int quitGame = 0; //1:endgame, 2: replay, 3: back home
+    int quit = 0; //1:endgame, 2: replay, 3: back home
     bool terroristAddMine = false;
-    bool quitWindow = false;
     //why the application is running
     SDL_Event gEvent;
-    while(!quitGame)
+    while(!quit)
     {
         //check clock
         if(firstClicked)
@@ -671,21 +771,32 @@ void playingGame()
             int timeUsed = ((double)(endTime - startTime)) / CLOCKS_PER_SEC;
             if(timeUsed != prevTime)
             {
-                if(timeUsed % 10 != 0)
+                if(timeUsed % gCurChar.mineTime != 0)
                 {
                    terroristAddMine = false;
                 }
+                addTime += randExtraTime(gCurChar.scoreTime);
                 prevTime = timeUsed;
-                uploadTime(timeUsed);
+                uploadTime(timeUsed + addTime);
             }
-            if(timeUsed != 0 && timeUsed % 10 == 0 && !terroristAddMine)
+            if(charUsed != 0 && timeUsed != 0 && timeUsed % gCurChar.mineTime == 0 && !terroristAddMine)
             {
                 terroristAddMine = true;
                 if(addMine())
                 {
                     gEndGame = -1;
-                    quitGame = 1;
+                    quit = 1;
                     break;
+                }
+                //skill char 3
+                if(charUsed == 3 && randomExtraSkill(gCurChar.extraSkill))
+                {
+                    if(addMine())
+                    {
+                        gEndGame = -1;
+                        quit = 1;
+                        break;
+                    }
                 }
             }
         }
@@ -694,24 +805,23 @@ void playingGame()
         {
             if(gEvent.type == SDL_QUIT)
             {
-                quitWindow = true;
-                quitGame = 1;
+                quit = INF;
                 break;
             }
             if(gEndGame != 0)
             {
-                quitGame = 1;
+                quit = 1;
                 break;
             }
             //if replay or back home
             if(clickReplay(gEvent))
             {
-                quitGame = 2;
+                quit = -1;
                 break;
             }
             if(clickBackHome(gEvent))
             {
-                quitGame = 3;
+                quit = -2;
                 break;
             }
             // handle menu events
@@ -741,17 +851,29 @@ void playingGame()
                                 if(opened[i][j] == 0)
                                 {
                                     if(countMine == 0)continue; // used all flags
+                                    //skill char 2
+                                    if(charUsed == 2 && randomExtraSkill(gCurChar.extraSkill))
+                                    {
+                                        if(addMine())
+                                        {
+                                            gEndGame = -1;
+                                            quit = 1;
+                                            break;
+                                        }
+                                    }
                                     countMine--;
                                     uploadMineLeft(countMine);
                                     opened[i][j] = -1; // flagged
-                                    gImageTile[11].getImage(getRect(curX, curY, TILE_SIZE, TILE_SIZE));
+                                    gImageTile[11].getImage(getRect(curX, curY,
+                                        TILE_SIZE, TILE_SIZE));
                                 }
                                 else
                                 {
                                     countMine++;
                                     uploadMineLeft(countMine);
                                     opened[i][j] = 0; // take the flag
-                                    gImageTile[10].getImage(getRect(curX, curY, TILE_SIZE, TILE_SIZE));
+                                    gImageTile[10].getImage(getRect(curX, curY,
+                                        TILE_SIZE, TILE_SIZE));
                                 }
                             }
                         }
@@ -761,48 +883,34 @@ void playingGame()
         }
         SDL_RenderPresent(renderer);
     }
-    if(quitWindow)
+    if(quit == INF)quitSDL(window, renderer);
+    if(quit == 1)
     {
-        quitSDL(window, renderer);
+        Mix_PauseMusic();
+        if(gEndGame == 1)
+        {
+            //get new score
+            Mix_PlayMusic(gWinGame, 0);
+            mWinScore[difficulty] = min(mWinScore[difficulty], prevTime + addTime);
+            gYOUWIN.getText(getRect(gYOUWIN.mPosition.x, gYOUWIN.mPosition.y,
+                gYOUWIN.mTEXT_WIDTH, gYOUWIN.mTEXT_HEIGHT));
+        }
+        else
+        {
+            Mix_PlayMusic(gLoseGame, 0);
+            gYOULOSE.getText(getRect(gYOULOSE.mPosition.x, gYOULOSE.mPosition.y,
+                gYOULOSE.mTEXT_WIDTH, gYOULOSE.mTEXT_HEIGHT));
+        }
+        gPLAYAGAIN.getText(getRect(gPLAYAGAIN.mPosition.x, gPLAYAGAIN.mPosition.y,
+                gPLAYAGAIN.mTEXT_WIDTH, gPLAYAGAIN.mTEXT_HEIGHT));
+        SDL_RenderPresent(renderer);
     }
-    switch(quitGame)
+    if(quit == -1)loopGame();
+    if(quit == -2)
     {
-    case 2:
-        {
-            //replay
-            loopGame();
-            break;
-        }
-    case 3:
-        {
-            //back menu
-            playMainMenuMusic();
-            createMenu();
-            break;
-        }
-    default:
-        {
-            if(gEndGame == 1)
-            {
-                //get new score
-                Mix_PauseMusic();
-                Mix_PlayMusic(gWinGame, 0);
-                mWinScore[difficulty] = min(mWinScore[difficulty], prevTime);
-                gYOUWIN.getText(getRect(gYOUWIN.mPosition.x, gYOUWIN.mPosition.y,
-                    gYOUWIN.mTEXT_WIDTH, gYOUWIN.mTEXT_HEIGHT));
-            }
-            else
-            {
-                Mix_PauseMusic();
-                Mix_PlayMusic(gLoseGame, 0);
-                gYOULOSE.getText(getRect(gYOULOSE.mPosition.x, gYOULOSE.mPosition.y,
-                    gYOULOSE.mTEXT_WIDTH, gYOULOSE.mTEXT_HEIGHT));
-            }
-            gPLAYAGAIN.getText(getRect(gPLAYAGAIN.mPosition.x, gPLAYAGAIN.mPosition.y,
-                    gPLAYAGAIN.mTEXT_WIDTH, gPLAYAGAIN.mTEXT_HEIGHT));
-            SDL_RenderPresent(renderer);
-            break;
-        }
+        //back menu
+        playMainMenuMusic();
+        createMenu();
     }
 }
 
@@ -812,6 +920,7 @@ int getWinScore(int index)
 }
 void playOneGame()
 {
+    gCurChar = gCharacter[charUsed];
     resetMineTable();
     randomMine();
     initializeMineTable();

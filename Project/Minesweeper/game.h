@@ -11,19 +11,23 @@ void setupButtonAndTextGame();
 string convertNum(int curNum);
 void uploadTime(int curTime);
 void uploadMineLeft(int curMine);
-
+//choose character
+void chooseCharacter();
 //manage table
 void getDifficulty(int index);
 void resetMineTable();
 void randomMine();
 void initializeMineTable();
 //game play
+bool randExtraSkill(int index);
+int randExtraTime(int index);
 void openTile(int i, int j);
 void bfs(int i, int j);
-bool clickReplay(SDL_Event gEvent);
-bool clickBackHome(SDL_Event gEvent);
 bool addMine();
 int getWinScore(int index);
+
+bool clickReplay(SDL_Event gEvent);
+bool clickBackHome(SDL_Event gEvent);
 
 void playingGame();
 

@@ -103,3 +103,10 @@ SDL_Rect getRect(int x, int y, int w, int h)
     cRect.h = h;
     return cRect;
 }
+
+void Character::setupChar()
+{
+    mineTime = 10;
+    scoreTime = 0;
+    extraSkill = 0;
+}

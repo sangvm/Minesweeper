@@ -13,7 +13,7 @@ void chooseDifficulty();
 void showHighScore();
 void addHighScore();
 
-bool playAgain();
 void loopGame();
+bool playAgain();
 
 #endif // _menu_h

@@ -11,6 +11,7 @@ using namespace std;
 
 const int mSCREEN_WIDTH = 1000;
 const int mSCREEN_HEIGHT = 800;
+const int INF = 1e9;
 int TEXT_SIZE = 35;
 bool mPlayerClickedHome = false;
 
@@ -36,26 +37,23 @@ void setupMenuButton()
     //setup main menu music
     mMainMenu = Mix_LoadMUS("../Music/mainmenu.mp3");
     //load menu button
-    int idX, idY;
-    idX = 400; idY = 325;
     mPlayButton.loadImage("../Image/Menu/playButton.png");
-    mPlayButton.setPosition(idX, idY);
+    mPlayButton.setPosition(400, 325);
     mPlayButton.setSize(200, 75);
 
     mHighScoreButton.loadImage("../Image/Menu/highscoreButton.png");
-    mHighScoreButton.setPosition(idX, idY + 100);
+    mHighScoreButton.setPosition(400, 425);
     mHighScoreButton.setSize(200, 75);
 
     mBackButton.loadImage("../Image/Menu/replayButton.png");
     mBackButton.setPosition(100, 200);
     mBackButton.setSize(50, 50);
 
-    idX = 400; idY = 275;
     //difficulty button 200x75
     for(int i = 0; i < 4; i++)
     {
+        mDifficulty[i].setPosition(400, 275 + i * 100);
         mDifficulty[i].setSize(200, 75);
-        mDifficulty[i].setPosition(idX, idY + i * 100);
 
         string path = "../Image/Menu/";
         if(i == 0)path = path + "easyButton.png";
@@ -158,7 +156,14 @@ void loopGame()
 void chooseDifficulty()
 {
     mTheme.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
-    bool quit = false;
+    mBackButton.getImage(getRect(mBackButton.mPosition.x, mBackButton.mPosition.y,
+        mBackButton.mBUTTON_WIDTH, mBackButton.mBUTTON_HEIGHT));
+    for(int i = 0; i < 4; i++)
+    {
+        mDifficulty[i].getImage(getRect(mDifficulty[i].mPosition.x, mDifficulty[i].mPosition.y,
+            mDifficulty[i].mBUTTON_WIDTH, mDifficulty[i].mBUTTON_HEIGHT));
+    }
+    int quit = 0;
     SDL_Event chooseEvent;
     while(!quit)
     {
@@ -166,88 +171,75 @@ void chooseDifficulty()
         {
             if(chooseEvent.type == SDL_QUIT)
             {
-                quit = true;
+                quit = INF;
                 break;
             }
-            mBackButton.getImage(getRect(mBackButton.mPosition.x, mBackButton.mPosition.y,
-                mBackButton.mBUTTON_WIDTH, mBackButton.mBUTTON_HEIGHT));
-            if(mBackButton.checkIfMouseIsInButton(&chooseEvent))
+            if(mBackButton.checkIfMouseIsInButton(&chooseEvent) && leftClicked(chooseEvent))
             {
-                if(leftClicked(chooseEvent))
-                {
-                    createMenu();
-                    quit = true;
-                    break;
-                }
+                quit = -1;
+                break;
             }
             for(int i = 0; i < 4; i++)
             {
-                mDifficulty[i].getImage(getRect(mDifficulty[i].mPosition.x, mDifficulty[i].mPosition.y,
-                    mDifficulty[i].mBUTTON_WIDTH, mDifficulty[i].mBUTTON_HEIGHT));
-                if(mDifficulty[i].checkIfMouseIsInButton(&chooseEvent))
+                if(mDifficulty[i].checkIfMouseIsInButton(&chooseEvent) && leftClicked(chooseEvent))
                 {
-                    if(leftClicked(chooseEvent))
-                    {
-                        quit = true;
-                        getDifficulty(i);
-                        loopGame();
-                        break;
-                    }
+                    quit = 1 + i;
+                    break;
                 }
             }
         }
         SDL_RenderPresent(renderer);
     }
-    quitSDL(window, renderer);
+    if(quit == INF)quitSDL(window, renderer);
+    if(quit == -1)createMenu();
+    if(quit >= 1)getDifficulty(quit - 1);
 }
 
 void showHighScore()
 {
     mTheme.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
+    mBackButton.getImage(getRect(mBackButton.mPosition.x, mBackButton.mPosition.y,
+        mBackButton.mBUTTON_WIDTH, mBackButton.mBUTTON_HEIGHT));
     for(int i = 0; i < 4; i++)
     {
         mHighscore[i] = min(mHighscore[i], getWinScore(i));
+        mDiffText[i].getText(getRect(250, 300 + 50 * i,
+            mDiffText[i].mTEXT_WIDTH, mDiffText[i].mTEXT_HEIGHT));
+        int mTextWidth = (mHighscore[i] == 1000 ? 7 * TEXT_SIZE : 3 * TEXT_SIZE);
+        mNumText[mHighscore[i]].getText(getRect(250 + mDiffText[i].mTEXT_WIDTH + 15,
+            300 + 50 * i, mTextWidth, mDiffText[i].mTEXT_HEIGHT));
     }
     SDL_Event showEvent;
-    bool quit = false;
+    int quit = 0;
     while(!quit)
     {
         while(SDL_PollEvent(&showEvent))
         {
             if(showEvent.type == SDL_QUIT)
             {
-                quit = true;
+                quit = INF;
                 break;
             }
-            mBackButton.getImage(getRect(mBackButton.mPosition.x, mBackButton.mPosition.y,
-                mBackButton.mBUTTON_WIDTH, mBackButton.mBUTTON_HEIGHT));
-            for(int i = 0; i < 4; i++)
+            if(mBackButton.checkIfMouseIsInButton(&showEvent) && leftClicked(showEvent))
             {
-                mDiffText[i].getText(getRect(250, 300 + 50 * i,
-                    mDiffText[i].mTEXT_WIDTH, mDiffText[i].mTEXT_HEIGHT));
-                int mTextWidth = (mHighscore[i] == 1000 ? 7 * TEXT_SIZE : 3 * TEXT_SIZE);
-                mNumText[mHighscore[i]].getText(getRect(250 + mDiffText[i].mTEXT_WIDTH + 15,
-                    300 + 50 * i, mTextWidth, mDiffText[i].mTEXT_HEIGHT));
-            }
-            if(mBackButton.checkIfMouseIsInButton(&showEvent))
-            {
-                if(leftClicked(showEvent))
-                {
-                    createMenu();
-                    quit = true;
-                    break;
-                }
+                quit = -1;
+                break;
             }
         }
         SDL_RenderPresent(renderer);
     }
-    quitSDL(window, renderer);
+    if(quit == INF)quitSDL(window, renderer);
+    if(quit == -1)createMenu();
 }
 
 void createMenu()
 {
     mTheme.getImage(getRect(0, 0, mSCREEN_WIDTH, mSCREEN_HEIGHT));
-    bool quit = false;
+    mPlayButton.getImage(getRect(mPlayButton.mPosition.x, mPlayButton.mPosition.y,
+        mPlayButton.mBUTTON_WIDTH, mPlayButton.mBUTTON_HEIGHT));
+    mHighScoreButton.getImage(getRect(mHighScoreButton.mPosition.x, mHighScoreButton.mPosition.y,
+        mHighScoreButton.mBUTTON_WIDTH, mHighScoreButton.mBUTTON_HEIGHT));
+    int quit = 0;
     SDL_Event menuEvent;
     while(!quit)
     {
@@ -255,35 +247,25 @@ void createMenu()
         {
             if(menuEvent.type == SDL_QUIT)
             {
-                quit = true;
+                quit = INF;
                 break;
             }
-            mPlayButton.getImage(getRect(mPlayButton.mPosition.x, mPlayButton.mPosition.y,
-                mPlayButton.mBUTTON_WIDTH, mPlayButton.mBUTTON_HEIGHT));
-            mHighScoreButton.getImage(getRect(mHighScoreButton.mPosition.x, mHighScoreButton.mPosition.y,
-                mHighScoreButton.mBUTTON_WIDTH, mHighScoreButton.mBUTTON_HEIGHT));
-            if(mPlayButton.checkIfMouseIsInButton(&menuEvent))
+            if(mPlayButton.checkIfMouseIsInButton(&menuEvent) && leftClicked(menuEvent))
             {
-                if(leftClicked(menuEvent))
-                {
-                    chooseDifficulty();
-                    quit = true;
-                    break;
-                }
+                quit = 1;
+                break;
             }
-            if(mHighScoreButton.checkIfMouseIsInButton(&menuEvent))
+            if(mHighScoreButton.checkIfMouseIsInButton(&menuEvent) && leftClicked(menuEvent))
             {
-                if(leftClicked(menuEvent))
-                {
-                    showHighScore();
-                    quit = true;
-                    break;
-                }
+                quit = 2;
+                break;
             }
         }
         SDL_RenderPresent(renderer);
     }
-    quitSDL(window, renderer);
+    if(quit == INF)quitSDL(window, renderer);
+    if(quit == 1)chooseDifficulty();
+    if(quit == 2)showHighScore();
 }
 
 void playMainMenuMusic()

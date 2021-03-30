@@ -16,6 +16,7 @@ void setupGame()
 	fontText = TTF_OpenFont("DTM-Mono.ttf", 40);
     SDL_Color textColor = {140, 140, 140};
     Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);
+    Mix_VolumeMusic(40);
     setupMenuButton();
     setupButtonAndTextGame();
     playMainMenuMusic();

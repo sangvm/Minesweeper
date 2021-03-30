@@ -43,5 +43,14 @@ private:
 };
 SDL_Rect getRect(int x, int y, int w, int h);
 
+class Character
+{
+public:
+    int mineTime;
+    int scoreTime;
+    int extraSkill;
+    void setupChar();
+};
+
 #endif // _texture_h
 
