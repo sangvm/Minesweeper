@@ -2,34 +2,10 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="initialize.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="140" topLine="6" />
+			<Cursor1 position="458" topLine="14" />
 		</Cursor>
-	</File>
-	<File name="initialize.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1055" topLine="28" />
-		</Cursor>
-	</File>
-	<File name="menu.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="233" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="game.cpp" open="1" top="1" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="712" topLine="27" />
-		</Cursor>
-		<Folding>
-			<Collapse line="353" />
-			<Collapse line="431" />
-			<Collapse line="477" />
-			<Collapse line="485" />
-			<Collapse line="519" />
-			<Collapse line="550" />
-			<Collapse line="556" />
-		</Folding>
 	</File>
 	<File name="texture.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
@@ -41,9 +17,14 @@
 			<Cursor1 position="2310" topLine="12" />
 		</Cursor>
 	</File>
-	<File name="main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="initialize.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="458" topLine="14" />
+			<Cursor1 position="140" topLine="6" />
+		</Cursor>
+	</File>
+	<File name="game.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="458" topLine="9" />
 		</Cursor>
 	</File>
 	<File name="menu.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -51,9 +32,19 @@
 			<Cursor1 position="2806" topLine="99" />
 		</Cursor>
 	</File>
-	<File name="game.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="initialize.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="458" topLine="9" />
+			<Cursor1 position="1055" topLine="28" />
+		</Cursor>
+	</File>
+	<File name="game.cpp" open="1" top="1" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="884" topLine="27" />
+		</Cursor>
+	</File>
+	<File name="menu.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="233" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
